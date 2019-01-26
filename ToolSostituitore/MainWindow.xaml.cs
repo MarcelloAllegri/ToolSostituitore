@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +25,32 @@ namespace ToolSostituitore
         {
             InitializeComponent();
         }
+
+        private void AddFileToolbarButton_Click(object sender, RoutedEventArgs e)
+        {
+            ImportFile();
+        }
+
+        private void ImportFile()
+        {
+            SelectFile();
+        }
+
+        private void SelectFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Csv file (*.csv)|*.csv|All files (*.*)|*.*";
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            openFileDialog.ShowDialog();
+            
+
+        }
+
+        private void Start_Substitution_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        
     }
 }

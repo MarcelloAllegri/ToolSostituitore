@@ -2,11 +2,101 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ToolSostituitore"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"        
+        xmlns:toolkits="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Tool Sostituitore" Height="350" Width="800" ResizeMode="NoResize">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         
+        <DockPanel>
+            <Menu Grid.Row="0" Height="Auto" Width="Auto">
+
+                <MenuItem x:Name="FileManagementMenuItem" Header="_File" Height="25" >
+                    <MenuItem Header="Add File" Click="AddFileToolbarButton_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/add_plus.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+
+                <MenuItem x:Name="RunSubstitutionMenuItem" Header="_Run" Height="25">
+                    <MenuItem Header="Start Substitution" Click="Start_Substitution_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/Resources/Images/run.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <ListView Grid.Row="1"
+                  ItemsSource="{Binding }"
+                  x:Name="FileListView"
+                  >
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="File Name" 
+                                    DisplayMemberBinding="{Binding Filename,UpdateSourceTrigger=PropertyChanged,Mode=OneWayToSource}"
+                                    Width="250"/>
+                    <GridViewColumn Header ="File Path" DisplayMemberBinding="{Binding FilePath,UpdateSourceTrigger=PropertyChanged,Mode=OneWayToSource}"
+                                    Width="550"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>          
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+
+            <DockPanel Grid.Column="0" Grid.Row="1">
+                <Label Content="Imput File Separator"/>
+                <ComboBox x:Name="ImputFileSeparatorChooseComboBox"
+                          ItemsSource="{Binding}"
+                          Width="125"
+                          Text="Chose the separator"></ComboBox>
+            </DockPanel>
+
+            <DockPanel Grid.Column="1" Grid.Row="1">
+                <Label Content="Output File Separator"/>
+                <ComboBox x:Name="OutputFileSeparatorChooseComboBox"
+                          ItemsSource="{Binding}"
+                          Width="125"
+                          Text="Chose the separator"></ComboBox>
+            </DockPanel>
+
+            <DockPanel Grid.Row="3" Grid.Column="0">
+                <Label Content="Nr of item por row"/>
+                <toolkits:IntegerUpDown x:Name="ColumnsCounterNumericUpAndDown"
+                                        Width="125"
+                                        Minimum="2"
+                                        Maximum="8"/>
+            </DockPanel>
+        </Grid>
+
+        <Grid Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <ProgressBar Grid.Row="1" x:Name="ProgressStatusBar"></ProgressBar>
+        </Grid>
     </Grid>
 </Window>
