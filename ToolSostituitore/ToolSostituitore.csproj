@@ -73,6 +73,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="InsertDelimitatorUserControl.xaml.cs">
+      <DependentUpon>InsertDelimitatorUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Classes\FileInformation.cs" />
+    <Page Include="InsertDelimitatorUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -118,6 +126,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\add_plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\save.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
