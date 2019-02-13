@@ -143,13 +143,8 @@ namespace ToolSostituitore
 
         private string ChangeSeparator(string item)
         {
-            string[] Columns = item.Split(m_ImputFileDelimiter);
-
-            string itemModified = string.Empty;
-            foreach (var elem in Columns)            
-                itemModified = itemModified + elem + m_OutputFileDelimiter;
-
-            return itemModified;
+            string replacement = item.Replace(m_ImputFileDelimiter, m_OutputFileDelimiter);
+            return replacement;
         }
 
         private int GetFile()
