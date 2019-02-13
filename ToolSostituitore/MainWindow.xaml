@@ -18,7 +18,22 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Image Source="/Resources/Images/LOGO_TRASPARENTE.png" Grid.Row="0" RenderOptions.BitmapScalingMode="Fant" />
+        <Grid Grid.Row="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Source="/Resources/Images/LOGO_TRASPARENTE.png" Grid.Column="0" RenderOptions.BitmapScalingMode="Fant" />
+            <TextBlock Grid.Column="1" FontFamily="Consolas" TextWrapping="Wrap" Foreground="DarkBlue" TextAlignment="Center">
+                <LineBreak/>
+                <Run>Geocom Parma S.r.l. </Run><LineBreak/>
+                <Run> Via Galeotti n. 7 - 43019 Soragna (PR)</Run><LineBreak/>
+                <Run> Tel./fax 0524 597237 - Cel. 333 522 0984</Run><LineBreak/>
+                <Run> Email - info@geocomparma.it</Run>
+            </TextBlock>        
+        </Grid>
+        
         <TabControl Grid.Row="1">
             <TabItem Header="Parameters" x:Name="MainTabItem">
                 <Grid>
