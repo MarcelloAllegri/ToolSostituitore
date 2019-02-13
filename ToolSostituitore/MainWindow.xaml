@@ -7,145 +7,147 @@
         xmlns:local="clr-namespace:ToolSostituitore"
         mc:Ignorable="d"
         Title="Tool Sostituitore" 
-        Height="350" 
+        Height="400" 
         Width="800" 
         ResizeMode="NoResize"
         Loaded="Window_Loaded">
-    <TabControl>
-        <TabItem Header="Parameters" x:Name="MainTabItem">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="100"/>
-                    <RowDefinition Height="100"/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
 
-                <DockPanel>
-                    <Menu Grid.Row="0" Height="Auto" Width="Auto">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="75"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
 
-                        <MenuItem x:Name="FileManagementMenuItem" Header="_File" Height="25" >
-                            <MenuItem Header="Add File" Click="AddFileToolbarButton_Click">
-                                <MenuItem.Icon>
-                                    <Image Source="/Resources/Images/add_plus.png"></Image>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-
-                        <MenuItem x:Name="RunSubstitutionMenuItem" Header="_Run" Height="25">
-                            <MenuItem Header="Start Substitution" Click="Start_Substitution_Click">
-                                <MenuItem.Icon>
-                                    <Image Source="/Resources/Images/run.png"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                    </Menu>
-                </DockPanel>
-
-                <ListView Grid.Row="1"
-                  ItemsSource="{Binding }"
-                  x:Name="FileListView">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="File Name"
-                                    DisplayMemberBinding="{Binding Path=FileName}"                                    
-                                    Width="250"/>
-                            <GridViewColumn Header ="File Path" DisplayMemberBinding="{Binding Path=Path}"
-                                    Width="520"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-
-                <Grid Grid.Row="2">
+        <Image Source="/Resources/Images/LOGO_TRASPARENTE.png" Grid.Row="0" RenderOptions.BitmapScalingMode="Fant" />
+        <TabControl Grid.Row="1">
+            <TabItem Header="Parameters" x:Name="MainTabItem">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="25"/>
-                        <RowDefinition Height="25"/>
-                        <RowDefinition Height="25"/>
-                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <Menu Grid.Row="0" Height="Auto" Width="Auto">
+
+                            <MenuItem x:Name="FileManagementMenuItem" Header="_File" Height="25" >
+                                <MenuItem Header="Add File" Click="AddFileToolbarButton_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Images/add_plus.png"></Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuItem>
+
+                            <MenuItem x:Name="RunSubstitutionMenuItem" Header="_Run" Height="25">
+                                <MenuItem Header="Start Substitution" Click="Start_Substitution_Click">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Resources/Images/run.png"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuItem>
+                        </Menu>
+                    </DockPanel>
+
+                    <ListView Grid.Row="1"
+                  ItemsSource="{Binding }"
+                  x:Name="FileListView">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="File Name"
+                                    DisplayMemberBinding="{Binding Path=FileName}"                                    
+                                    Width="250"/>
+                                <GridViewColumn Header ="File Path" DisplayMemberBinding="{Binding Path=Path}"
+                                    Width="520"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
 
 
-                    <DockPanel Grid.Column="0" Grid.Row="1">
-                        <Label Content="Imput File Separator"/>
-                        <ComboBox x:Name="ImputFileSeparatorChooseComboBox"
+                        <DockPanel Grid.Column="0" Grid.Row="1">
+                            <Label Content="Imput File Separator"/>
+                            <ComboBox x:Name="ImputFileSeparatorChooseComboBox"
                           ItemsSource="{Binding }"
                           DisplayMemberPath="Key"
                           Width="125"
                           SelectionChanged="ImputFileSeparatorChooseComboBox_SelectionChanged"
                           Text="Chose the separator"></ComboBox>
-                    </DockPanel>
+                        </DockPanel>
 
-                    <DockPanel Grid.Column="1" Grid.Row="1">
-                        <Label Content="Output File Separator"/>
-                        <ComboBox x:Name="OutputFileSeparatorChooseComboBox"
+                        <DockPanel Grid.Column="1" Grid.Row="1">
+                            <Label Content="Output File Separator"/>
+                            <ComboBox x:Name="OutputFileSeparatorChooseComboBox"
                           ItemsSource="{Binding}"
                           DisplayMemberPath="Key"
                           Width="125"
                           SelectionChanged="OutputFileSeparatorChooseComboBox_SelectionChanged"
                           Text="Chose the separator"></ComboBox>
-                    </DockPanel>
+                        </DockPanel>
 
-                    <DockPanel Grid.Row="3" Grid.Column="0">
-                        <Label Content="Nr of item por row"/>
-                        <toolkits:IntegerUpDown x:Name="ColumnsCounterNumericUpAndDown"
+                        <DockPanel Grid.Row="3" Grid.Column="0">
+                            <Label Content="Nr of item por row"/>
+                            <toolkits:IntegerUpDown x:Name="ColumnsCounterNumericUpAndDown"
                                         Width="125"
                                         Minimum="2"
                                         Maximum="8"
                                         ValueChanged="ColumnsCounterNumericUpAndDown_ValueChanged"/>
-                    </DockPanel>
-                </Grid>
+                        </DockPanel>
+                    </Grid>
 
-                <Grid Grid.Row="3">
+                    
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="customCharacterUserControl" Header="Custom Separator"  Visibility="Hidden">
+                <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition Height="25"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
 
-                    <ProgressBar Grid.Row="1" x:Name="ProgressStatusBar" Margin="5,5,5,5"></ProgressBar>
-                </Grid>
-            </Grid>
-        </TabItem>
-        <TabItem x:Name="customCharacterUserControl" Header="Custom Separator"  Visibility="Hidden">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-
-                <ToolBar x:Name="CustomCharacterUserControlToolBar" Height="30" Visibility="{Binding ElementName=customCharacterUserControl}">
-                    <Button x:Name="SaveButton" 
+                    <ToolBar x:Name="CustomCharacterUserControlToolBar" Height="30" Visibility="{Binding ElementName=customCharacterUserControl}">
+                        <Button x:Name="SaveButton" 
                             Height="Auto" 
                             Width="Auto" 
                             ToolTip="Save"
                             Click="SaveButton_Click">
-                        <Button.Content>
-                            <Image  Source="/Resources/Images/save.png"></Image>
-                        </Button.Content>
-                    </Button>
-                    <Button x:Name="CloseButton" 
+                            <Button.Content>
+                                <Image  Source="/Resources/Images/save.png"></Image>
+                            </Button.Content>
+                        </Button>
+                        <Button x:Name="CloseButton" 
                             Height="Auto" 
                             Width="Auto" 
                             ToolTip="Close"
                             Click="CloseButton_Click">
-                        <Button.Content>
-                            <Image Source="/Resources/Images/close.png"></Image>
-                        </Button.Content>
-                    </Button>
-                </ToolBar>
-                
-                <local:InsertDelimitatorUserControl Grid.Row="1" 
+                            <Button.Content>
+                                <Image Source="/Resources/Images/close.png"></Image>
+                            </Button.Content>
+                        </Button>
+                    </ToolBar>
+
+                    <local:InsertDelimitatorUserControl Grid.Row="1" 
                                                     Visibility="{Binding ElementName=customCharacterUserControl}"
                                                     VerticalAlignment="Top" 
                                                     x:Name="insertDelimitatorUserControl"/>
-            </Grid>
-            
-        </TabItem>
-    </TabControl>
+                </Grid>
+
+            </TabItem>
+        </TabControl>
+    </Grid>
+    
     
 </Window>

@@ -78,17 +78,11 @@ namespace ToolSostituitore
             int r2 = GetFile();
             if(r1 == true && r2 == 0)
             {
-                SetProgressBar();
                 RunSubstitution();
             }
         }
 
-        private void SetProgressBar()
-        {
-            ProgressStatusBar.Value = 0;
-            ProgressStatusBar.Minimum = 0;
-            ProgressStatusBar.Maximum = m_FileContentList.Count;
-        }
+        
 
         private void RunSubstitution()
         {
