@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace ToolSostituitore
     {
         private List<FileInformation> m_fileInformation;
         Dictionary<string, char> ListOfSeparator;
+        private ConcurrentBag<string> m_FileContentList;
+        private ConcurrentBag<string> m_OutputFileContentList;
         private char m_ImputFileDelimiter;
         private char m_OutputFileDelimiter;
         private int m_ItemPorRow = -1;
@@ -67,17 +70,104 @@ namespace ToolSostituitore
                 fileInformation.Add(new FileInformation(Path.GetFileName(openFileDialog.FileName), Path.GetFullPath(openFileDialog.FileName)));
                 this.FileListView.ItemsSource = fileInformation;
             }
-
-
         }
 
         private void Start_Substitution_Click(object sender, RoutedEventArgs e)
         {
-            CheckField();
-
+            bool r1 = CheckFields();
+            int r2 = GetFile();
+            if(r1 == true && r2 == 0)
+            {
+                SetProgressBar();
+                RunSubstitution();
+            }
         }
 
-        private void CheckField()
+        private void SetProgressBar()
+        {
+            ProgressStatusBar.Value = 0;
+            ProgressStatusBar.Minimum = 0;
+            ProgressStatusBar.Maximum = m_FileContentList.Count;
+        }
+
+        private void RunSubstitution()
+        {
+            List<Task> SubListTask = new List<Task>();
+            m_OutputFileContentList = new ConcurrentBag<string>();
+
+            if (!(m_FileContentList.ElementAt(0)).Contains(m_ImputFileDelimiter))
+                MessageBox.Show("Input Delimiter not correct!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+            {
+                foreach (var item in m_FileContentList)
+                {
+                    SubListTask.Add(Task.Factory.StartNew(() => { m_OutputFileContentList.Add(ChangeSeparator(item)); }));
+                    //ContinueWith((parentTask) => { Dispatcher.Invoke(new Action(() => ProgressStatusBar.Value++)); }));
+                }
+
+                Task.Factory.ContinueWhenAll(SubListTask.ToArray(), completedTask => { SaveResult(); });
+            }
+        }
+
+        private void SaveResult()
+        {
+            bool retry = true;
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Title = "Salva File Risultato";
+            saveFileDialog1.Filter = "csv files (*.csv)|*.csv";
+
+            while (retry)
+            {
+                if (saveFileDialog1.ShowDialog() == true)
+                {
+                    if (File.Exists(saveFileDialog1.FileName) == false)
+                    {
+                        
+                        File.AppendAllLines(saveFileDialog1.FileName, m_OutputFileContentList.ToList());                        
+                        retry = false;
+                        
+                        MessageBox.Show("Procedura di sotituzione completata.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Il file e' correntemente in uso, si prega di chiuderlo.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
+                        retry = true;
+                    }
+                }
+                else
+                {
+                    retry = true;
+                }
+            }
+        }
+
+        private string ChangeSeparator(string item)
+        {
+            string[] Columns = item.Split(m_ImputFileDelimiter);
+
+            string itemModified = string.Empty;
+            foreach (var elem in Columns)            
+                itemModified = itemModified + elem + m_OutputFileDelimiter;
+
+            return itemModified;
+        }
+
+        private int GetFile()
+        {
+            try
+            {                
+                m_FileContentList = new ConcurrentBag<string>(File.ReadAllLines(m_fileInformation[0].Path));
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Error during importing file. Check it!");
+                return -1;
+            }
+
+            return 0;
+        }
+
+        private bool CheckFields()
         {
             string itemsNotCompiled = string.Empty;
 
@@ -94,7 +184,12 @@ namespace ToolSostituitore
                 itemsNotCompiled = string.Concat(itemsNotCompiled, "\nNumber of item not specified!");
 
             if (!string.IsNullOrEmpty(itemsNotCompiled))
+            {
                 MessageBox.Show("Errors:\n" + itemsNotCompiled);
+                return false;
+            }
+
+            return true;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
