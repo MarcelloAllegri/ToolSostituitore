@@ -25,7 +25,7 @@ namespace ToolSostituitore
     {
         private List<FileInformation> m_fileInformation;
         Dictionary<string, char> ListOfSeparator;
-        private ConcurrentBag<string> m_FileContentList;
+        private List<string> m_FileContentList;
         private ConcurrentBag<string> m_OutputFileContentList;
         private char m_ImputFileDelimiter;
         private char m_OutputFileDelimiter;
@@ -144,8 +144,10 @@ namespace ToolSostituitore
         private int GetFile()
         {
             try
-            {                
-                m_FileContentList = new ConcurrentBag<string>(File.ReadAllLines(m_fileInformation[0].Path));
+            {
+                if(m_fileInformation !=null)
+                    if(!string.IsNullOrEmpty(m_fileInformation[0].Path))
+                        m_FileContentList = new List<string>(File.ReadAllLines(m_fileInformation[0].Path));                        
             }
             catch (Exception)
             {
@@ -169,9 +171,7 @@ namespace ToolSostituitore
             if (OutputFileSeparatorChooseComboBox.SelectedItem == null)
                 itemsNotCompiled = string.Concat(itemsNotCompiled, "\nOutput file character separator not selected!");
 
-            if(m_ItemPorRow == -1)
-                itemsNotCompiled = string.Concat(itemsNotCompiled, "\nNumber of item not specified!");
-
+            
             if (!string.IsNullOrEmpty(itemsNotCompiled))
             {
                 MessageBox.Show("Errors:\n" + itemsNotCompiled);
@@ -193,21 +193,7 @@ namespace ToolSostituitore
             ListOfSeparator.Add("Other", 'o');
 
             OutputFileSeparatorChooseComboBox.ItemsSource = ImputFileSeparatorChooseComboBox.ItemsSource = ListOfSeparator;
-        }
-
-        private IEnumerable<string> ImportFile()
-        {
-            try
-            {
-                return File.ReadAllLines(fileInformation[0].Path);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Errore durante l'importazione del file");
-            }
-
-            return null;
-        }
+        }        
 
         private void ImputFileSeparatorChooseComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -292,9 +278,17 @@ namespace ToolSostituitore
 
         }
 
-        private void ColumnsCounterNumericUpAndDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        public void ClearAll()
         {
-            this.m_ItemPorRow = (int)this.ColumnsCounterNumericUpAndDown.Value;
+            m_fileInformation = new List<FileInformation>();
+            FileListView.ItemsSource = null;
+            m_OutputFileDelimiter = m_ImputFileDelimiter = '\0';
+            ImputFileSeparatorChooseComboBox.SelectedItem = OutputFileSeparatorChooseComboBox.SelectedItem = null;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ClearAll();
         }
     }
 }
