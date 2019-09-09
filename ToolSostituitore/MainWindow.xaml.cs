@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,37 +26,32 @@ namespace ToolSostituitore
     {
         private List<FileInformation> m_fileInformation;
         Dictionary<string, char> ListOfSeparator;
-        private List<string> m_FileContentList;
-        private ConcurrentBag<string> m_OutputFileContentList;
-        private char m_ImputFileDelimiter;
+        private List<string> m_FileContentList;        
+        private char m_InputFileDelimiter;
         private char m_OutputFileDelimiter;
-        private int m_ItemPorRow = -1;
+        
 
         public List<FileInformation> fileInformation
         {
             get { return m_fileInformation; }
             set { m_fileInformation = value; }
         }
-
         public char InputFileDelimiter
         {
-            set { m_ImputFileDelimiter = value; }
+            set { m_InputFileDelimiter = value; }
         }
-
         public char OutputFileDelimiter
         {
-            set { m_ImputFileDelimiter = value; }
+            set { m_InputFileDelimiter = value; }
         }
         public MainWindow()
         {
             InitializeComponent();
         }
-
         private void AddFileToolbarButton_Click(object sender, RoutedEventArgs e)
         {
             SelectFile();
         }
-
         private void SelectFile()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -71,93 +67,66 @@ namespace ToolSostituitore
                 this.FileListView.ItemsSource = fileInformation;
             }
         }
-
         private void Start_Substitution_Click(object sender, RoutedEventArgs e)
         {
-            bool r1 = CheckFields();
-            int r2 = GetFile();
-            if(r1 == true && r2 == 0)
-            {
-                RunSubstitution();
-            }
+            bool r1 = CheckFields();           
+            string OutputFilePath = SaveResult();
+            if(r1 == true && !string.IsNullOrEmpty(OutputFilePath))            
+                RunSubstitution(OutputFilePath);
         }
-
-        
-
-        private void RunSubstitution()
+        private void RunSubstitution(string outputFilePath)
         {
-            List<Task> SubListTask = new List<Task>();
-            m_OutputFileContentList = new ConcurrentBag<string>();
+            outputFilePath = Path.GetFullPath(outputFilePath);
 
-            if (!(m_FileContentList.ElementAt(0)).Contains(m_ImputFileDelimiter))
-                MessageBox.Show("Input Delimiter not correct!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            else
+            StreamReader file = new StreamReader(fileInformation[0].Path);
+            if (file != null)
             {
-                foreach (var item in m_FileContentList)
-                {
-                    SubListTask.Add(Task.Factory.StartNew(() => { m_OutputFileContentList.Add(ChangeSeparator(item)); }));
-                    //ContinueWith((parentTask) => { Dispatcher.Invoke(new Action(() => ProgressStatusBar.Value++)); }));
+                string line = file.ReadLine();
+                if (!line.Contains(m_InputFileDelimiter))
+                    MessageBox.Show("Input Delimiter not correct!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                else
+                {                   
+                    using (StreamWriter fileout = new System.IO.StreamWriter(outputFilePath))
+                    {
+                        string app = ChangeSeparator(line);
+                        fileout.WriteLine(app);                        
+                        while ((line = file.ReadLine()) != null)
+                        {
+                            app = ChangeSeparator(line);
+                            fileout.WriteLine(app);                            
+                        }
+                        file.Close();
+                        fileout.Close();
+                    }                    
                 }
-
-                Task.Factory.ContinueWhenAll(SubListTask.ToArray(), completedTask => { SaveResult(); });
             }
+            
+            MessageBox.Show("Sostituzione Completata!", "Avviso", MessageBoxButton.OK);
         }
-
-        private void SaveResult()
+        private string SaveResult()
         {
             bool retry = true;
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-            saveFileDialog1.Title = "Salva File Risultato";
+            saveFileDialog1.Title = "Seleziona la cartella e immetti il nome del file in cui verrà scritto il risultato";
             saveFileDialog1.Filter = "csv files (*.csv)|*.csv";
-
+            bool? dialogResult = saveFileDialog1.ShowDialog();
             while (retry)
             {
-                if (saveFileDialog1.ShowDialog() == true)
-                {
-                    if (File.Exists(saveFileDialog1.FileName) == false)
-                    {
-                        
-                        File.AppendAllLines(saveFileDialog1.FileName, m_OutputFileContentList.ToList());                        
-                        retry = false;
-                        
-                        MessageBox.Show("Procedura di sotituzione completata.");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Il file e' correntemente in uso, si prega di chiuderlo.", "Errore", MessageBoxButton.OK, MessageBoxImage.Error);
-                        retry = true;
-                    }
-                }
+                if (dialogResult == true)                                    
+                    return saveFileDialog1.FileName;                
+                else if(dialogResult == false)                
+                    return string.Empty;                
                 else
-                {
                     retry = true;
-                }
+                
             }
+            return string.Empty;
         }
-
         private string ChangeSeparator(string item)
         {
-            string replacement = item.Replace(m_ImputFileDelimiter, m_OutputFileDelimiter);
+            string replacement = item.Replace(m_InputFileDelimiter, m_OutputFileDelimiter);
             return replacement;
         }
-
-        private int GetFile()
-        {
-            try
-            {
-                if(m_fileInformation !=null)
-                    if(!string.IsNullOrEmpty(m_fileInformation[0].Path))
-                        m_FileContentList = new List<string>(File.ReadAllLines(m_fileInformation[0].Path));                        
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Error during importing file. Check it!");
-                return -1;
-            }
-
-            return 0;
-        }
-
         private bool CheckFields()
         {
             string itemsNotCompiled = string.Empty;
@@ -165,7 +134,7 @@ namespace ToolSostituitore
             if (m_fileInformation == null || string.IsNullOrEmpty(this.m_fileInformation[0].Path))
                 itemsNotCompiled = string.Concat(itemsNotCompiled, "File not selected!");
 
-            if(ImputFileSeparatorChooseComboBox.SelectedItem == null)
+            if(InputFileSeparatorChooseComboBox.SelectedItem == null)
                 itemsNotCompiled = string.Concat(itemsNotCompiled, "\nInput file character separator not selected!");
 
             if (OutputFileSeparatorChooseComboBox.SelectedItem == null)
@@ -180,7 +149,6 @@ namespace ToolSostituitore
 
             return true;
         }
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             ListOfSeparator = new Dictionary<string, char>();
@@ -192,12 +160,11 @@ namespace ToolSostituitore
             ListOfSeparator.Add("Space", ' ');
             ListOfSeparator.Add("Other", 'o');
 
-            OutputFileSeparatorChooseComboBox.ItemsSource = ImputFileSeparatorChooseComboBox.ItemsSource = ListOfSeparator;
+            OutputFileSeparatorChooseComboBox.ItemsSource = InputFileSeparatorChooseComboBox.ItemsSource = ListOfSeparator;
         }        
-
-        private void ImputFileSeparatorChooseComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void InputFileSeparatorChooseComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedValue = ImputFileSeparatorChooseComboBox.SelectedValue;
+            var selectedValue = InputFileSeparatorChooseComboBox.SelectedValue;
 
             if (selectedValue != null)
                 switch (((KeyValuePair<string, char>)selectedValue).Key)
@@ -206,13 +173,12 @@ namespace ToolSostituitore
                     case ",":
                     case ";":
                     case "Tab":
-                    case "Space": this.m_ImputFileDelimiter = ListOfSeparator[((KeyValuePair<string, char>)selectedValue).Key]; break;
+                    case "Space": this.m_InputFileDelimiter = ListOfSeparator[((KeyValuePair<string, char>)selectedValue).Key]; break;
                     case "Other": InsertCustomDelimiter(true); break;
                     default:
                         break;
                 }
         }
-
         private void InsertCustomDelimiter(bool isInputDelimiter)
         {
             customCharacterUserControl.Visibility = Visibility.Visible;
@@ -220,7 +186,6 @@ namespace ToolSostituitore
             insertDelimitatorUserControl.IsInputDelimiter = isInputDelimiter;
             MainTabItem.Visibility = Visibility.Collapsed;
         }
-
         private void OutputFileSeparatorChooseComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedValue = OutputFileSeparatorChooseComboBox.SelectedValue;
@@ -238,7 +203,6 @@ namespace ToolSostituitore
                         break;
                 }
         }
-
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             string text = insertDelimitatorUserControl.Save();
@@ -248,7 +212,7 @@ namespace ToolSostituitore
             {
                 switch (insertDelimitatorUserControl.IsInputDelimiter)
                 {
-                    case true: m_ImputFileDelimiter = text[0]; break;
+                    case true: m_InputFileDelimiter = text[0]; break;
                     case false: m_OutputFileDelimiter = text[0]; break;
                 }
 
@@ -262,7 +226,6 @@ namespace ToolSostituitore
                     MessageBox.Show("Hai inserito più di 1 carattere!");
             }
         }
-
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             MainTabItem.Visibility = Visibility.Visible;
@@ -271,21 +234,19 @@ namespace ToolSostituitore
             if (!(text.Count() == 1))
                 switch (insertDelimitatorUserControl.IsInputDelimiter)
                 {
-                    case true: ImputFileSeparatorChooseComboBox.SelectedItem = null; break;
+                    case true: InputFileSeparatorChooseComboBox.SelectedItem = null; break;
                     case false: OutputFileSeparatorChooseComboBox.SelectedItem = null; break;
                 }
             customCharacterUserControl.Visibility = Visibility.Collapsed;
 
         }
-
         public void ClearAll()
         {
             m_fileInformation = new List<FileInformation>();
             FileListView.ItemsSource = null;
-            m_OutputFileDelimiter = m_ImputFileDelimiter = '\0';
-            ImputFileSeparatorChooseComboBox.SelectedItem = OutputFileSeparatorChooseComboBox.SelectedItem = null;
+            m_OutputFileDelimiter = m_InputFileDelimiter = '\0';
+            InputFileSeparatorChooseComboBox.SelectedItem = OutputFileSeparatorChooseComboBox.SelectedItem = null;
         }
-
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             ClearAll();
